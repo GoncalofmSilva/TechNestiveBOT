@@ -1,6 +1,5 @@
 // Import necessary classes and functions from discord.js
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const keep_alive = require('./keep_alive.js')
 // Load environment variables from a .env file
 require('dotenv').config();
 
