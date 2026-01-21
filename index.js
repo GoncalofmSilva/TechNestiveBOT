@@ -56,62 +56,6 @@ client.on('guildMemberAdd', async (member) => {
 
 app.use(express.json())
 
-app.post('/github-pr-webhook', async (req, res) => {
-  try {
-        const payload = req.body;
-        console.log("Received GitHub webhook:", JSON.stringify(payload, null, 2));
-
-        // Extract relevant information from the GitHub payload
-        const action = payload.action;
-        const pullRequest = payload.pull_request;
-        const repository = payload.repository;
-
-        if (!pullRequest || !repository) {
-            console.error("Invalid GitHub payload: Missing pull_request or repository.");
-            return res.status(400).json({ message: "Invalid GitHub payload: Missing pull_request or repository." });
-        }
-
-        const prTitle = pullRequest.title;
-        const prUrl = pullRequest.html_url;
-        const prAuthor = pullRequest.user ? pullRequest.user.login : 'Unknown';
-        const repoFullName = repository.full_name;
-
-        // Find the target channel
-        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
-
-        if (!channel) {
-            console.error(`Error: Channel with ID ${TARGET_CHANNEL_ID} not found.`);
-            return res.status(500).json({ message: "Discord channel not found." });
-        }
-
-        if (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.PrivateThread && channel.type !== ChannelType.PublicThread) {
-            console.error(`Error: Channel ${TARGET_CHANNEL_ID} is not a text channel or thread.`);
-            return res.status(500).json({ message: "Target channel is not a text channel or thread." });
-        }
-
-        // Construct the Discord message embed
-        const embed = new EmbedBuilder()
-            .setTitle(`New Pull Request: ${prTitle}`)
-            .setURL(prUrl)
-            .setDescription(`Action: **${action.charAt(0).toUpperCase() + action.slice(1)}**\nRepository: \`${repoFullName}\`\nAuthor: \`${prAuthor}\``)
-            .setColor(0x0099FF) // A nice blue color
-            .addFields(
-                { name: 'Link', value: `[View Pull Request](${prUrl})`, inline: false }
-            )
-            .setTimestamp(new Date(pullRequest.created_at)) // Use PR creation timestamp
-            .setFooter({ text: 'Via GitHub Actions' });
-
-        // Send the message
-        await channel.send({ embeds: [embed] });
-        console.log("Notification sent to Discord.");
-        res.status(200).json({ message: "Notification sent to Discord." });
-
-    } catch (error) {
-        console.error('Error handling GitHub webhook:', error);
-        res.status(500).json({ message: "Internal server error.", error: error.message });
-    }
-})
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
