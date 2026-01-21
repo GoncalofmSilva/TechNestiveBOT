@@ -6,7 +6,7 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
 
-const DISCORD_BOT_TOKEN = process.env.TOKEN
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN
 const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID
 
 // Create a new client instance with specified intents
